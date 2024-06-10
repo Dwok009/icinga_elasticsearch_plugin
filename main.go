@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"encoding/base64"
 )
 
 func main() {
 	var host string
 	var uri string
 	var useSSL bool
-	var apiToken string
+	var username string
+	var password string
 
 	flag.StringVar(&host, "H", "localhost", "Elasticsearch host")
 	flag.StringVar(&uri, "u", "/", "Elasticsearch URI")
 	flag.BoolVar(&useSSL, "ssl", false, "Use SSL")
-	flag.StringVar(&apiToken, "token", "", "API token for authentication")
+	flag.StringVar(&username, "username", "", "Elasticsearch username")
+	flag.StringVar(&password, "password", "", "Elasticsearch password")
 	flag.Parse()
 
 	protocol := "http"
@@ -31,8 +34,10 @@ func main() {
 		os.Exit(2)
 	}
 
-	if apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+apiToken)
+	if username != "" && password != "" {
+		auth := username + ":" + password
+		b64 := base64.StdEncoding.EncodeToString([]byte(auth))
+		req.Header.Set("Authorization", "Basic "+b64)
 	}
 
 	client := &http.Client{}
