@@ -9,26 +9,20 @@ import (
 
 func main() {
 	var host string
-	var port string
 	var uri string
 	var useSSL bool
 
 	flag.StringVar(&host, "H", "localhost", "Elasticsearch host")
-	flag.StringVar(&port, "P", "", "Elasticsearch port (default 9200 if not provided)")
 	flag.StringVar(&uri, "u", "/", "Elasticsearch URI")
 	flag.BoolVar(&useSSL, "ssl", false, "Use SSL")
 	flag.Parse()
-
-	if port == "" {
-		port = "9200"  // Default Elasticsearch port
-	}
 
 	protocol := "http"
 	if useSSL {
 		protocol = "https"
 	}
 
-	url := fmt.Sprintf("%s://%s:%s%s", protocol, host, port, uri)
+	url := fmt.Sprintf("%s://%s:%s", protocol, host, uri)
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("CRITICAL - Unable to reach Elasticsearch:", err)
