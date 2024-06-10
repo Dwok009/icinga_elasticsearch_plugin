@@ -11,10 +11,12 @@ func main() {
 	var host string
 	var uri string
 	var useSSL bool
+	var apiToken string
 
 	flag.StringVar(&host, "H", "localhost", "Elasticsearch host")
 	flag.StringVar(&uri, "u", "/", "Elasticsearch URI")
 	flag.BoolVar(&useSSL, "ssl", false, "Use SSL")
+	flag.StringVar(&apiToken, "token", "", "API token for authentication")
 	flag.Parse()
 
 	protocol := "http"
@@ -23,7 +25,18 @@ func main() {
 	}
 
 	url := fmt.Sprintf("%s://%s:%s", protocol, host, uri)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		os.Exit(2)
+	}
+
+	if apiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+apiToken)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("CRITICAL - Unable to reach Elasticsearch:", err)
 		os.Exit(2)
